@@ -1,0 +1,47 @@
+@name Advent of Code/D1P1
+@persist [LineId Sum Loaded]:number [Lines]:array
+@strict
+
+interval(10)
+
+event fileLoaded(_:string, Data:string) {
+    Lines = Data:explode("\n")
+    LineId = 0
+    Sum = 0
+    Loaded = 1     
+}
+
+if (first()) { 
+    fileLoad("advent_of_code/d1.txt")
+    
+} elseif (Loaded) {
+    while (LineId <= Lines:count() & perf(75)) {
+        local Line = Lines[LineId, string]
+
+        local FoundLeft = 0
+        local RightVal = 0
+                    
+        foreach(_:number, Char:string = Line) {
+            local CurDigit = -1
+            
+            if (Char == "0" | Char == "1" | Char == "2" | Char == "3" | Char == "4" | Char == "5" | Char == "6" | Char == "7" | Char == "8" | Char == "9") {
+                CurDigit = Char:toNumber()
+                
+            }
+            
+            if (CurDigit >= 0) {
+                if (FoundLeft == 0) {
+                    Sum += CurDigit * 10
+                    FoundLeft = 1
+                } 
+                    
+                RightVal = CurDigit           
+            }
+        }
+            
+        Sum += RightVal  
+        LineId++         
+    }
+    
+    if (LineId > Lines:count()) {print(Sum) selfDestruct()} 
+}

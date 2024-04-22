@@ -1,0 +1,73 @@
+@name Advent of Code/D8
+@persist [LineId Steps Loaded Parsed]:number [Lines Instructions CurLocations Stats FoundPath]:array [Maps]:table
+@strict
+
+interval(10)
+
+event fileLoaded(_:string, Data:string) {
+    Lines = Data:explode("\n")
+    Instructions = Lines[1, string]:trim():explode("")
+    
+    Loaded = 1
+}
+
+if (first()) {
+    fileLoad("advent_of_code/d8.txt")
+    
+    Maps = table()
+    Stats = array()
+    CurLocations = array()
+    FoundPath = array()
+    LineId = 2
+    Steps = 0 
+    
+    
+} elseif (Loaded) {
+    while (LineId <= Lines:count() & perf(75)) {
+        local Map = Lines[LineId, string]:trim()
+        local StartLocation = Map:sub(1, 3)
+        local LeftLocation = Map:sub(8, 10)        
+        local RightLocation = Map:sub(13, 15)   
+        
+        Maps[StartLocation + "L"] = LeftLocation 
+        Maps[StartLocation + "R"] = RightLocation           
+        
+        if (StartLocation:sub(3) == "A") {
+            CurLocations:pushString(StartLocation)
+            Stats:pushString("Test")
+            FoundPath:pushNumber(0)
+        }
+        
+        LineId++
+    }
+    
+    if (LineId > Lines:count()) {Loaded = 0 Parsed = 1}    
+  
+  
+} elseif (Parsed) {
+    while (perf(75)) {
+        local Instruction = Instructions[(Steps % Instructions:count()) + 1, string]
+        Steps++         
+        foreach(I:number, CurLocation:string = CurLocations) {
+            local NewLocation = Maps[CurLocation + Instruction, string]
+            if (NewLocation:sub(3) == "Z" & !FoundPath[I, number]) {
+                Stats[I, string] = Stats[I, string] + " " + NewLocation + "/" + Steps:toString()
+                FoundPath[I, number] = 1
+            }
+            CurLocations[I, string] = NewLocation
+        }  
+    } 
+
+    local FoundAll = 1
+    
+    foreach(_:number, Found:number = FoundPath) {
+        if (!Found) {FoundAll = 0}  
+    }
+
+    if (FoundAll) {
+        printTable(Stats) 
+        print("Calculate LCM")
+        selfDestruct()     
+    }       
+}
+

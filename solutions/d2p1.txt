@@ -1,0 +1,47 @@
+@name Advent of Code/D2P1
+@persist [GameId Sum Loaded R G B]:number [Games]:array
+@strict
+
+interval(10)
+
+event fileLoaded(_:string, Data:string) {
+    Games = Data:explode("\n")
+    
+    GameId = 1
+    Sum = 0
+    Loaded = 1
+    
+    R = 12
+    G = 13
+    B = 14      
+}
+
+if (first()) {
+    fileLoad("advent_of_code/d2.txt")
+    
+} elseif (Loaded) {
+    while (GameId <= Games:count() & perf(75)) {
+        local Invalid = 0
+        local CurGames = (Games[GameId, string]:trim():explode(": ")[2, string]):explode("; ")
+
+        foreach (_:number, CurGame:string = CurGames) {
+            local Cubes = CurGame:explode(", ")
+          
+            foreach (_:number, Cube:string = Cubes) {
+                local D = Cube:explode(" ")         
+
+                N = D[1, string]:toNumber()
+                Col = D[2, string]
+                if (Col == "red") {Invalid += N > R}
+                elseif (Col == "green") {Invalid += N > G}
+                elseif (Col == "blue") {Invalid += N > B}
+            }           
+        }
+        
+        if (!Invalid) {Sum += GameId}
+        
+        GameId++
+    }
+    
+    if (GameId > Games:count()) {print(Sum) selfDestruct()} 
+}

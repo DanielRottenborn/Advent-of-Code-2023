@@ -1,0 +1,64 @@
+@name Advent of Code/D9
+@persist [LeftmostSum RightmostSum LineId Loaded]:number [Lines]:array
+@strict
+
+interval(10)
+
+event fileLoaded(_:string, Data:string) {
+    Lines = Data:explode("\n")
+
+    LeftmostSum = 0
+    RightmostSum = 0
+    LineId = 1
+    Loaded = 1
+}
+
+if (first()) {
+    fileLoad("advent_of_code/d9.txt")
+
+} elseif (Loaded) {
+    while (LineId <= Lines:count() & perf(75)) {
+        local Numbers = Lines[LineId, string]:trim():explode(" ")
+        local Leftmost = array()
+        local Rightmost = array()
+        local AllZeros = 0
+        
+        foreach(I:number, Number:string = Numbers) {
+            Numbers[I, number] = Number:toNumber()
+        }
+
+        while(Numbers:count() > 1 & !AllZeros) {
+            AllZeros = 1
+            Leftmost:pushNumber(Numbers[1, number])        
+            Rightmost:pushNumber(Numbers[Numbers:count(), number])
+
+
+            for(I = 1, Numbers:count() - 1, 1) {
+                Numbers[I, number] = Numbers[I + 1, number] - Numbers[I, number]
+                if (Numbers[I, number] != 0) {AllZeros = 0}    
+            }
+            
+
+            Numbers:popNumber() 
+        }
+        
+        local LeftmostNumber = 0
+        local RightmostNumber = 0
+
+        for(I = Leftmost:count(), 1, -1) {
+            LeftmostNumber = Leftmost[I, number] - LeftmostNumber
+        }     
+            
+        for(I = Rightmost:count(), 1, -1) {
+            RightmostNumber = Rightmost[I, number] + RightmostNumber
+        }     
+        
+        LeftmostSum += LeftmostNumber
+        RightmostSum += RightmostNumber
+        
+        LineId++
+    }
+    
+    if (LineId > Lines:count()) {print(LeftmostSum, RightmostSum) selfDestruct()}    
+    
+}

@@ -1,0 +1,67 @@
+@name Advent of Code/D5P1
+@persist [Loaded SeedId LowestLocation]:number [Seeds]:array [Conversion]:table
+@strict
+
+interval(10)
+
+event fileLoaded(_:string, Data:string) {
+    local Maps = Data:explode(":")
+    Seeds = Maps[1, string]:trim():explode(" ")
+    Conversion = table()
+    
+    foreach (I:number, Seed:string = Seeds) {
+        Seeds[I, number] = Seed:toNumber()
+    }
+
+    for (I = 2, Maps:count(), 1) {
+        local RawMap = Maps[I, string]:trim():explode("\n")
+        local Map = table()
+        
+        foreach(J:number, RawRange:string = RawMap) {
+            local Range = RawRange:trim():explode(" ")
+            
+            foreach(K:number, RawNumber:string = Range) {
+                Range[K, number] = RawNumber:toNumber()
+            }
+            
+            Map[J, array] = Range
+        }  
+        
+        Conversion[I - 1, table] = Map
+          
+    } 
+
+    Loaded = 1
+    SeedId = 1 
+    LowestLocation = _INF 
+}
+
+if (first()) {
+    fileLoad("advent_of_code/d5.txt")
+    
+} elseif (Loaded) {
+    while (SeedId <= Seeds:count() & perf(75)) {
+        local CurNumber = Seeds[SeedId, number]
+
+        for (I = 1, Conversion:count(), 1) {
+            local Map = Conversion[I, table]
+
+            for (J = 1, Map:count(), 1) {
+                local Range = Map[J, array]
+                local DestStart = Range[1, number]
+                local SourceStart = Range[2, number]
+                local RangeLen = Range[3, number]
+                
+                if (inrange(CurNumber, SourceStart, SourceStart + RangeLen - 1)) {
+                    CurNumber = CurNumber + (DestStart - SourceStart)
+                    break
+                }
+            }  
+        }
+        
+        if (CurNumber < LowestLocation) {LowestLocation = CurNumber}
+
+        SeedId++
+    }
+    if (SeedId > Seeds:count()) {print(LowestLocation) selfDestruct()} 
+}

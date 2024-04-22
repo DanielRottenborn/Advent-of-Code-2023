@@ -1,0 +1,12 @@
+@name Advent of Code/D6P2
+@strict
+
+RaceTime = 63789468
+RecordLen = 411127420471035 + 0.0000001
+    
+D = RaceTime ^ 2 - 4 * RecordLen
+    
+Time1 = ceil((RaceTime - sqrt(D)) / 2)
+Time2 = floor((RaceTime + sqrt(D)) / 2)   
+
+print(Time2 - Time1 + 1)

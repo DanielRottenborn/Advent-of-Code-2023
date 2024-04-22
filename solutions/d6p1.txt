@@ -1,0 +1,20 @@
+@name Advent of Code/D6P1
+@strict
+
+RaceTimes = array(63, 78, 94, 68)
+RecordLengths = array(411, 1274, 2047, 1035)
+Product = 1
+
+for (I = 1, 4, 1) {
+    RaceTime = RaceTimes[I, number]
+    RecordLen = RecordLengths[I, number] + 0.0000001
+    
+    D = RaceTime ^ 2 - 4 * RecordLen
+    
+    Time1 = ceil((RaceTime - sqrt(D)) / 2)
+    Time2 = floor((RaceTime + sqrt(D)) / 2)   
+
+    Product = Product * (Time2 - Time1 + 1) 
+}
+
+print(Product)

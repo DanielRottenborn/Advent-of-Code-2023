@@ -1,0 +1,114 @@
+@name Advent of Code/D10P2
+@persist [Loaded FoundLoop LineId Area]:number [StartPos CurPos]:vector2 [Lines]:array [EnterDir]:string
+@strict
+
+interval(10)
+
+event fileLoaded(_:string, Data:string) {
+    Lines = Data:explode("\n")
+    StartPos = vec2()
+    FoundLoop = 0
+
+    foreach(I:number, Line:string = Lines) {
+        StartPos = StartPos:setX(Line:find("S"))
+        
+        if (StartPos:x()) {
+            Lines[I, string] = Line:replace("S", "L")
+            StartPos = StartPos:setY(I)
+            break
+        } 
+    }
+
+    Area = 0
+    CurPos = StartPos
+    EnterDir = "top"
+    LineId = 1
+    Loaded = 1    
+}
+
+if (first()) {
+    fileLoad("advent_of_code/d10.txt")
+
+} elseif (Loaded) {
+    while (!FoundLoop & perf(75)) {
+        local Instruction = Lines[CurPos:y(), string][CurPos:x()]
+        local ReplaceSymbol = ""
+
+        if (Instruction == "|") {ReplaceSymbol = "!"}     
+        elseif (Instruction == "-") {ReplaceSymbol = "_"}  
+        elseif (Instruction == "L") {ReplaceSymbol = "l"}   
+        elseif (Instruction == "J") {ReplaceSymbol = "j"}     
+        elseif (Instruction == "7") {ReplaceSymbol = "s"}          
+        elseif (Instruction == "F") {ReplaceSymbol = "f"}          
+        
+        Lines[CurPos:y(), string] = Lines[CurPos:y(), string]:sub(1, CurPos:x() - 1) + ReplaceSymbol +  Lines[CurPos:y(), string]:sub(CurPos:x() + 1)
+ 
+        if (Instruction == "|") {
+            if (EnterDir == "top") {CurPos += vec2(0, 1)}
+            elseif (EnterDir == "bottom") {CurPos += vec2(0, -1)}
+            
+        } elseif (Instruction == "-") {
+            if (EnterDir == "left") {CurPos += vec2(1, 0)}
+            elseif (EnterDir == "right") {CurPos += vec2(-1, 0)}
+            
+        } elseif (Instruction == "L") {
+            if (EnterDir == "top") {CurPos += vec2(1, 0) EnterDir = "left"}
+            elseif (EnterDir == "right") {CurPos += vec2(0, -1) EnterDir = "bottom"}
+            
+        } elseif (Instruction == "J") {
+            if (EnterDir == "top") {CurPos += vec2(-1, 0) EnterDir = "right"}
+            elseif (EnterDir == "left") {CurPos += vec2(0, -1) EnterDir = "bottom"}
+            
+        } elseif (Instruction == "7") {
+            if (EnterDir == "bottom") {CurPos += vec2(-1, 0) EnterDir = "right"}
+            elseif (EnterDir == "left") {CurPos += vec2(0, 1) EnterDir = "top"}
+            
+        } elseif (Instruction == "F") {
+            if (EnterDir == "bottom") {CurPos += vec2(1, 0) EnterDir = "left"}
+            elseif (EnterDir == "right") {CurPos += vec2(0, 1) EnterDir = "top"}
+        }
+
+        if (CurPos == StartPos) {FoundLoop = 1 Loaded = 0}
+    }
+    
+} elseif (FoundLoop) {
+    while (LineId <= Lines:count() & perf(75)) {
+        local Line = Lines[LineId, string]:trim()
+        local IsInsideLoop = 0
+        local PrevLineBorder = ""
+        
+        foreach(_:number, Cell:string = Line) {
+            local IsBorder = 0
+            
+            if (Cell == "l" | Cell == "f") {
+                IsBorder = 1
+                PrevLineBorder = Cell
+            }    
+              
+            if (Cell == "j") {
+                IsBorder = 1
+                if (PrevLineBorder == "f") {IsInsideLoop = !IsInsideLoop}
+            } 
+            
+            if (Cell == "s") {
+                IsBorder = 1
+                if (PrevLineBorder == "l") {IsInsideLoop = !IsInsideLoop}
+            }             
+                        
+            if (Cell == "!") {
+                IsBorder = 1
+                IsInsideLoop = !IsInsideLoop
+            }
+                
+            if (Cell == "_") {
+                IsBorder = 1
+            }
+                
+            if (!IsBorder & IsInsideLoop) {Area++}
+        }
+    
+        LineId++
+    }
+    
+    if(LineId > Lines:count()) {print(Area) selfDestruct()}
+}

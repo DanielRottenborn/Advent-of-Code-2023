@@ -1,0 +1,176 @@
+@name Advent of Code/D3P2
+@persist [LineId Sum Loaded]:number [Lines]:array
+@strict
+
+interval(10)
+
+function number is_digit(Char:string) {
+    return Char == "0" | Char == "1" | Char == "2" | Char == "3" | Char == "4" | Char == "5" | Char == "6" | Char == "7" | Char == "8" | Char == "9"
+}
+
+event fileLoaded(_:string, Data:string) {
+    Lines = Data:explode("\n")
+    LineId = 1
+    Sum = 0
+    Loaded = 1       
+}
+    
+if (first()) { 
+    fileLoad("advent_of_code/d3.txt")
+
+} elseif (Loaded) {
+    while (LineId <= Lines:count() & perf(75)) {
+        local Line = Lines[LineId, string]:trim()
+        local CurChar = 1
+
+        while (CurChar <= Line:length()) {
+            if (Line[CurChar] == "*") {
+                local AdjNumbers = array()
+         
+        
+                if (LineId > 1) {
+                    local TopLine = Lines[LineId - 1, string]:trim()
+                    if (is_digit(TopLine[CurChar])) {
+                        local Num = TopLine[CurChar]
+                        local MinNumId = CurChar + 1
+                        local MaxNumId = CurChar - 1
+                                            
+                        while (MinNumId <= TopLine:length()) {
+                            if (!is_digit(TopLine[MinNumId])) {break}
+                            Num += TopLine[MinNumId]
+                            MinNumId++
+                        }
+                        
+                        while (MaxNumId  >= 1) {
+                            if (!is_digit(TopLine[MaxNumId])) {break}
+                            Num = TopLine[MaxNumId] + Num
+                            MaxNumId--
+                        }                    
+                        
+                        AdjNumbers:pushNumber(Num:toNumber()) 
+                        
+                    } else {
+                        if (is_digit(TopLine[CurChar + 1])) {
+                            local Num = ""
+                            local MinNumId = CurChar + 1
+                            
+                            while (MinNumId <= TopLine:length()) {
+                                if (!is_digit(TopLine[MinNumId])) {break}
+                                Num += TopLine[MinNumId]
+                                MinNumId++
+                            }
+                            
+                            AdjNumbers:pushNumber(Num:toNumber())   
+                        } 
+                        
+                        if (is_digit(TopLine[CurChar - 1])) {
+                            local Num = ""
+                            local MaxNumId = CurChar - 1
+                            
+                            while (MaxNumId  >= 1) {
+                                if (!is_digit(TopLine[MaxNumId])) {break}
+                                Num = TopLine[MaxNumId] + Num
+                                MaxNumId--
+                            }
+                            
+                            AdjNumbers:pushNumber(Num:toNumber()) 
+                        }       
+                    } 
+                }   
+        
+               
+                if (CurChar < Line:length()) {
+                    if (is_digit(Line[CurChar + 1])) {
+                        local Num = ""
+                        local MinNumId = CurChar + 1
+                        
+                        while (MinNumId <= Line:length()) {
+                            if (!is_digit(Line[MinNumId])) {break}
+                            Num += Line[MinNumId]
+                            MinNumId++
+                        }
+                        
+                        AdjNumbers:pushNumber(Num:toNumber())   
+                    }
+                }
+                   
+                 
+                if (CurChar > 1) {
+                    if (is_digit(Line[CurChar - 1])) {
+                        local Num = ""
+                        local MaxNumId = CurChar - 1
+                        
+                        while (MaxNumId  >= 1) {
+                            if (!is_digit(Line[MaxNumId])) {break}
+                            Num = Line[MaxNumId] + Num
+                            MaxNumId--
+                        }
+                        
+                        AdjNumbers:pushNumber(Num:toNumber()) 
+                    }
+                }
+    
+    
+                if (LineId < Lines:count()) { 
+                    local BotLine = Lines[LineId + 1, string]:trim()
+                    if (is_digit(BotLine[CurChar])) {
+                        local Num = BotLine[CurChar]
+                        local MinNumId = CurChar + 1
+                        local MaxNumId = CurChar - 1
+                                            
+                        while (MinNumId <= BotLine:length()) {
+                            if (!is_digit(BotLine[MinNumId])) {break}
+                            Num += BotLine[MinNumId]
+                            MinNumId++
+                        }
+                        
+                        while (MaxNumId  >= 1) {
+                            if (!is_digit(BotLine[MaxNumId])) {break}
+                            Num = BotLine[MaxNumId] + Num
+                            MaxNumId--
+                        }                    
+                        
+                        AdjNumbers:pushNumber(Num:toNumber()) 
+                        
+                    } else {
+                        if (is_digit(BotLine[CurChar + 1])) {
+                            local Num = ""
+                            local MinNumId = CurChar + 1
+                            
+                            while (MinNumId <= BotLine:length()) {
+                                if (!is_digit(BotLine[MinNumId])) {break}
+                                Num += BotLine[MinNumId]
+                                MinNumId++
+                            }
+                            
+                            AdjNumbers:pushNumber(Num:toNumber())   
+                        } 
+                        
+                        if (is_digit(BotLine[CurChar - 1])) {
+                            local Num = ""
+                            local MaxNumId = CurChar - 1
+                            
+                            while (MaxNumId  >= 1) {
+                                if (!is_digit(BotLine[MaxNumId])) {break}
+                                Num = BotLine[MaxNumId] + Num
+                                MaxNumId--
+                            }
+                            
+                            AdjNumbers:pushNumber(Num:toNumber()) 
+                        }       
+                    } 
+                } 
+
+         
+                if (AdjNumbers:count() == 2) {Sum += AdjNumbers[1, number] * AdjNumbers[2, number]}
+                                   
+            }  
+            
+            CurChar++
+        }
+
+        LineId++                  
+    }
+    
+    if (LineId > Lines:count()) {print(Sum) selfDestruct()} 
+}

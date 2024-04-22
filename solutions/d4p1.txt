@@ -1,0 +1,45 @@
+@name Advent of Code/D4P1
+@persist [LineId Sum Loaded]:number [Lines]:array
+@strict
+
+interval(10)
+
+event fileLoaded(_:string, Data:string) {
+    Lines = Data:explode("\n")
+    LineId = 1
+    Loaded = 1
+    Sum = 0    
+}
+
+if (first()) {
+    fileLoad("advent_of_code/d4.txt")
+    
+} elseif (Loaded) {
+    while (LineId <= Lines:count() & perf(75)) {
+        local Line = Lines[LineId, string]:trim():explode(":")[2, string]
+        
+        local WinNumbers = Line:explode("|")[1, string]:trim():explode(" ")
+        local MyNumbers = Line:explode("|")[2, string]:trim():explode(" ")
+        local WinTable = table()
+
+        local Score = 0
+
+        foreach (_:number, WinNumber:string = WinNumbers) {
+            WinTable[WinNumber:trim(), number] = 1
+        }
+
+        foreach (_:number, MyNumber:string = MyNumbers) {
+            if (WinTable[MyNumber:trim(), number] & MyNumber:trim() != "") {
+                if (Score == 0) {Score = 1}
+                else {Score *= 2}           
+            }        
+        }        
+    
+        Sum += Score
+        LineId++         
+    }
+    
+    if (LineId > Lines:count()) {print(Sum) selfDestruct()} 
+}
+
+

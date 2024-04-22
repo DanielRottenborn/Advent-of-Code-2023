@@ -1,0 +1,95 @@
+@name Advent of Code/D3P1
+@persist [LineId Sum Loaded]:number [Lines]:array
+@strict
+
+interval(10)
+
+function number is_digit(Char:string) {
+    return Char == "0" | Char == "1" | Char == "2" | Char == "3" | Char == "4" | Char == "5" | Char == "6" | Char == "7" | Char == "8" | Char == "9"
+}
+    
+function number is_symbol(Char:string) {
+    return (!is_digit(Char)) & (Char != ".")     
+}
+
+event fileLoaded(_:string, Data:string) {
+    Lines = Data:explode("\n")
+    LineId = 1
+    Sum = 0
+    Loaded = 1    
+}
+
+if (first()) { 
+    fileLoad("advent_of_code/d3.txt")
+   
+} elseif (Loaded) {
+    while (LineId <= Lines:count() & perf(75)) {
+        local Line = Lines[LineId, string]:trim()
+        
+        local FirstNumID = 1
+        local LastNumID = 1
+        
+        while (FirstNumID <= Line:length()) {  
+            if (is_digit(Line[FirstNumID])) {
+                local Num = ""
+                local IsAdjacent = 0
+                LastNumID = FirstNumID
+                
+                
+                if (FirstNumID > 1) {
+                    IsAdjacent += is_symbol(Line[FirstNumID - 1])
+                    
+                    if (LineId > 1) {
+                        IsAdjacent += is_symbol(Lines[LineId - 1, string][FirstNumID - 1])
+                    }
+                    
+                     if (LineId < Lines:count()) {
+                        IsAdjacent += is_symbol(Lines[LineId + 1, string][FirstNumID - 1])
+                    }                   
+                }
+                
+                while (LastNumID <= Line:length()) {
+                    if (!is_digit(Line[LastNumID])) {break}
+                    
+                    Num += Line[LastNumID]
+                    
+                    if (LineId > 1) {
+                        IsAdjacent += is_symbol(Lines[LineId - 1, string][LastNumID])
+                    }
+                    
+                     if (LineId < Lines:count()) {
+                        IsAdjacent += is_symbol(Lines[LineId + 1, string][LastNumID])
+                    }                       
+                    
+                    LastNumID++
+                }
+
+                if (LastNumID <= Line:length()) {
+                    IsAdjacent += is_symbol(Line[LastNumID])
+                    
+                    if (LineId > 1) {
+                        IsAdjacent += is_symbol(Lines[LineId - 1, string][LastNumID])
+                    }
+                    
+                     if (LineId < Lines:count()) {
+                        IsAdjacent += is_symbol(Lines[LineId + 1, string][LastNumID])
+                    }                   
+                }
+                
+                if (IsAdjacent) {
+                    Sum += Num:toNumber()
+                    
+                }
+                
+                FirstNumID = LastNumID
+                
+            } else {
+                FirstNumID++
+            }   
+        }  
+        
+        LineId++                  
+    }
+    
+    if (LineId > Lines:count()) {print(Sum) selfDestruct()} 
+}

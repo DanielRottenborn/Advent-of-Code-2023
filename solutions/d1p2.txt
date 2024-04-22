@@ -1,0 +1,76 @@
+@name Advent of Code/D1P2
+@persist [LineId Sum Loaded]:number [Lines]:array
+@strict
+
+interval(10)
+
+event fileLoaded(_:string, Data:string) {
+    Lines = Data:explode("\n")
+    LineId = 0
+    Sum = 0
+    Loaded = 1    
+}
+
+if (first()) { 
+    fileLoad("advent_of_code/d1.txt")
+    
+} elseif (Loaded) {
+    while (LineId <= Lines:count() & perf(75)) {
+        local Line = Lines[LineId, string]
+
+        local FoundLeft = 0
+        local RightVal = 0
+                    
+        foreach(I:number, Char:string = Line) {
+            local CurDigit = -1
+            
+            if (Char == "0" | Char == "1" | Char == "2" | Char == "3" | Char == "4" | Char == "5" | Char == "6" | Char == "7" | Char == "8" | Char == "9") {
+                CurDigit = Char:toNumber()
+                
+            } elseif(Line:sub(I, I + 3) == "zero") {
+                CurDigit = 0
+  
+            } elseif(Line:sub(I, I + 2) == "one") {
+                CurDigit = 1
+  
+            } elseif(Line:sub(I, I + 2) == "two") {
+                CurDigit = 2
+                                
+            } elseif(Line:sub(I, I + 4) == "three") {
+                CurDigit = 3
+                                             
+            } elseif(Line:sub(I, I + 3) == "four") {
+                CurDigit = 4
+                                             
+            } elseif(Line:sub(I, I + 3) == "five") {
+                CurDigit = 5   
+                                             
+            } elseif(Line:sub(I, I + 2) == "six") {
+                CurDigit = 6 
+                                             
+            } elseif(Line:sub(I, I + 4) == "seven") {
+                CurDigit = 7  
+                                             
+            } elseif(Line:sub(I, I + 4) == "eight") {
+                CurDigit = 8  
+                                             
+            } elseif(Line:sub(I, I + 3) == "nine") {
+                CurDigit = 9                                   
+            }
+            
+            if (CurDigit >= 0) {
+                if (FoundLeft == 0) {
+                    Sum += CurDigit * 10
+                    FoundLeft = 1
+                } 
+                    
+                RightVal = CurDigit           
+            }
+        }
+            
+        Sum += RightVal  
+        LineId++         
+    }
+    
+    if (LineId > Lines:count()) {print(Sum) selfDestruct()} 
+}

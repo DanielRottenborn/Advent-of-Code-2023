@@ -1,0 +1,165 @@
+@name Advent of Code/D5P2
+@persist [Loaded FoundEdges CheckedRanges MapId SeedId EdgeSeedId LowestLocation]:number [Seeds EdgeSeeds]:array [Conversion RangeSeeds]:table
+@strict
+
+interval(10)
+
+event fileLoaded(_:string, Data:string) {
+        local Maps = Data:explode(":")
+    RawSeedRanges = Maps[1, string]:trim():explode(" ")
+    Conversion = table()
+    RangeSeeds = table()
+    EdgeSeeds = array()
+
+    for (I = 1, RawSeedRanges:count(), 2) {
+        RangeSeeds[1 + (I - 1) / 2, array] = array(RawSeedRanges[I, string]:toNumber(), RawSeedRanges[I, string]:toNumber() + RawSeedRanges[I + 1, string]:toNumber() - 1)     
+    }
+
+    Seeds = array()
+
+    for (I = 2, Maps:count(), 1) {
+        local RawMap = Maps[I, string]:trim():explode("\n")
+        local Map = table()
+        
+        foreach(J:number, RawRange:string = RawMap) {
+            local Range = RawRange:trim():explode(" ")
+            
+            foreach(K:number, RawNumber:string = Range) {
+                Range[K, number] = RawNumber:toNumber()
+            }
+            
+            Map[J, array] = Range
+        }  
+        
+        Conversion[I - 1, table] = Map        
+    } 
+
+    Loaded = 1
+    SeedId = 1 
+    EdgeSeedId = 1 
+    MapId = Maps:count() 
+    LowestLocation = _INF
+
+    local Map = Conversion[MapId, table]
+    EdgeSeeds:pushNumber(-_INF)
+    EdgeSeeds:pushNumber(_INF)        
+        
+    for (I = 1, Map:count(), 1) {
+        local Range = Map[I, array]
+        local DestStart = Range[1, number]
+        local RangeLen = Range[3, number]
+                
+        EdgeSeeds:pushNumber(DestStart - 1)
+        EdgeSeeds:pushNumber(DestStart + RangeLen)  
+    }  
+}
+
+if (first()) {
+    fileLoad("advent_of_code/d5.txt")
+    
+} elseif (Loaded) {
+    local Map = Conversion[MapId, table]
+    
+    while (EdgeSeedId <= EdgeSeeds:count() & perf(75)) {
+        local EdgeSeed = EdgeSeeds[EdgeSeedId, number]
+
+        for (I = 1, Map:count(), 1) {
+            local Range = Map[I, array]
+            local DestStart = Range[1, number]
+            local SourceStart = Range[2, number]
+            local RangeLen = Range[3, number]
+                
+            if (inrange(EdgeSeed, DestStart, DestStart + RangeLen - 1)) {
+                EdgeSeeds[EdgeSeedId, number] = EdgeSeed + (SourceStart - DestStart)
+                break
+            }
+        } 
+
+        EdgeSeedId++
+    }          
+        
+    if (EdgeSeedId > EdgeSeeds:count()) {  
+        for (I = 1, Map:count(), 1) {
+            local Range = Map[I, array]
+            local SourceStart = Range[2, number]
+            local RangeLen = Range[3, number]
+                
+            EdgeSeeds:pushNumber(SourceStart)
+            EdgeSeeds:pushNumber(SourceStart + RangeLen - 1)  
+            EdgeSeeds:pushNumber(SourceStart - 1)
+            EdgeSeeds:pushNumber(SourceStart + RangeLen)  
+        }         
+   
+        MapId-- 
+        
+        if (MapId >= 1) {
+            local Map = Conversion[MapId, table]            
+            EdgeSeeds:pushNumber(-_INF)
+            EdgeSeeds:pushNumber(_INF)        
+            
+            for (I = 1, Map:count(), 1) {
+                local Range = Map[I, array]
+                local DestStart = Range[1, number]
+                local RangeLen = Range[3, number]
+                    
+                EdgeSeeds:pushNumber(DestStart - 1)
+                EdgeSeeds:pushNumber(DestStart + RangeLen) 
+            } 
+                
+        } else {
+            Loaded = 0
+            FoundEdges = 1  
+        }
+ 
+        EdgeSeedId = 1 
+    }
+ 
+} elseif (FoundEdges) { 
+    while (EdgeSeedId <= EdgeSeeds:count() & perf(75)) {
+        local EdgeSeed = EdgeSeeds[EdgeSeedId, number]
+
+        for (I = 1, RangeSeeds:count(), 1) {
+            local Range = RangeSeeds[I, array]
+            local Min = Range[1, number]
+            local Max = Range[2, number]
+
+            if (inrange(EdgeSeed, Min, Max)) {
+                Seeds:pushNumber(EdgeSeed)
+                break
+            }
+        } 
+
+        EdgeSeedId++
+    }        
+    
+    if (EdgeSeedId > EdgeSeeds:count()) { 
+        FoundEdges = 0
+        CheckedRanges = 1
+    }    
+
+} elseif (CheckedRanges) {
+    while (SeedId <= Seeds:count() & perf(75)) {
+        local CurNumber = Seeds[SeedId, number]
+
+        for (I = 1, Conversion:count(), 1) {
+            local Map = Conversion[I, table]
+
+            for (J = 1, Map:count(), 1) {
+                local Range = Map[J, array]
+                local DestStart = Range[1, number]
+                local SourceStart = Range[2, number]
+                local RangeLen = Range[3, number]
+                
+                if (inrange(CurNumber, SourceStart, SourceStart + RangeLen - 1)) {
+                    CurNumber = CurNumber + (DestStart - SourceStart)
+                    break
+                }
+            }  
+        }
+        
+        if (CurNumber < LowestLocation) {LowestLocation = CurNumber}
+
+        SeedId++
+    }
+    if (SeedId > Seeds:count()) {print(LowestLocation) selfDestruct()} 
+}

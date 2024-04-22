@@ -1,0 +1,102 @@
+@name Advent of Code/D7P2
+@persist [TotalWinnings Loaded Processed HandId]:number [Hands Bids]:array
+@strict
+
+interval(10)
+
+function number card2value(Card:string) {
+    if     (Card == "A") {return 12}
+    elseif (Card == "K") {return 11}                
+    elseif (Card == "Q") {return 10}        
+    elseif (Card == "J") {return 0}        
+    elseif (Card == "T") {return 9}        
+    else {return Card:toNumber() - 1}        
+}
+
+event fileLoaded(_:string, Data:string) {
+    local Lines = Data:explode("\n")
+    Hands = array()
+    Bids = array()
+    TotalWinnings = 0
+
+    foreach (I:number, Line:string = Lines) {
+        local Args = Line:trim():explode(" ")
+        Hands[I, string] = Args[1, string]
+        Bids[I, number] = Args[2, string]:toNumber()
+    }
+
+    Loaded = 1
+    HandId = 1 
+}
+
+if (first()) {
+    fileLoad("advent_of_code/d7.txt")
+    
+} elseif (Loaded) {
+    while (HandId <= Hands:count() & perf(75)) {
+        local Hand = Hands[HandId, string]
+        local CardQuantities = table()          
+        
+        local HighestQuantityId = -1
+        local HandValue = 0
+        local JCount = 0
+        
+        foreach (I:number, Card:string = Hand) {
+            CardValue = card2value(Card)
+            HandValue += CardValue * (13 ^ (5 - I))
+            
+            if (CardValue != 0 ) {
+                CardQuantities[CardValue + 1, number] = CardQuantities[CardValue + 1, number] + 1 
+            } else {
+                JCount++
+            }
+        }
+        
+        for(I = 1, 13, 1) {
+            if (CardQuantities[I, number] >= CardQuantities[HighestQuantityId, number]) {HighestQuantityId = I}         
+        }
+        
+        CardQuantities[HighestQuantityId, number] = CardQuantities[HighestQuantityId, number] + JCount     
+                
+        local PairCount = 0
+        local ThreeCount = 0
+        
+        for(I = 1, 13, 1) {
+            local CardQuantity = CardQuantities[I, number]
+            
+            if (CardQuantity == 5) {HandValue += 13^10}
+            elseif (CardQuantity == 4) {HandValue += 13^9}
+            elseif (CardQuantity == 3) {ThreeCount++}            
+            elseif (CardQuantity == 2) {PairCount++}              
+        }     
+        
+        if (ThreeCount == 1) {
+            if (PairCount == 1) {HandValue += 13^8}
+            else {HandValue += 13^7}    
+             
+        } else {
+            if (PairCount == 2) {HandValue += 13^6}   
+            elseif (PairCount == 1) {HandValue += 13^5}
+        }
+        
+        Hands[HandId, number] = HandValue
+        HandId++
+    }
+
+    if (HandId > Hands:count()) {Loaded = 0 Processed = 1 HandId = 1}
+
+} elseif (Processed) {
+    while (HandId <= Hands:count() & perf(75)) {
+        local Hand = Hands[HandId, number]    
+        local HandMultiplier = 1
+    
+        foreach(_:number, SecondHand:number = Hands) {
+            if (Hand > SecondHand) {HandMultiplier++}
+        }
+    
+        TotalWinnings += Bids[HandId, number] * HandMultiplier
+        HandId++
+    }    
+    
+    if (HandId > Hands:count()) {print(TotalWinnings) selfDestruct()}     
+}
